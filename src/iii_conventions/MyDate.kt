@@ -21,8 +21,8 @@ data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int) : Comparab
     }
 
     operator fun inc() : MyDate {
-        val tomorrow = LocalDate.of(year, month, dayOfMonth).plusDays(1)
-        return MyDate(tomorrow.year, tomorrow.month.value, tomorrow.dayOfMonth)
+        val tomorrow = LocalDate.of(year, month + 1, dayOfMonth).plusDays(1)
+        return MyDate(tomorrow.year, tomorrow.month.value - 1, tomorrow.dayOfMonth)
     }
 }
 
@@ -46,10 +46,9 @@ class DateRangeIterator(val start: MyDate, val endInclusive: MyDate) : Iterator<
 
     private var current = start;
 
-    override fun hasNext(): Boolean = start != endInclusive
+    override fun hasNext(): Boolean = current <= endInclusive
 
     override fun next(): MyDate {
-        current = current++
-        return current
+        return current++
     }
 }
