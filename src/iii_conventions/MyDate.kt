@@ -1,8 +1,32 @@
 package iii_conventions
 
-data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int)
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
-operator fun MyDate.rangeTo(other: MyDate): DateRange = todoTask27()
+data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int) : Comparable<MyDate> {
+    override fun compareTo(other: MyDate): Int {
+        return firstNonZero(
+                year.compareTo(other.year),
+                month.compareTo(other.month),
+                dayOfMonth.compareTo(other.dayOfMonth)
+        )
+    }
+
+    private fun firstNonZero(vararg els: Int) : Int {
+        for (el in els) {
+            if (el != 0) return el
+        }
+        return els.last()
+    }
+
+    operator fun inc() : MyDate {
+        val tomorrow = LocalDate.of(year, month, dayOfMonth).plusDays(1)
+        return MyDate(tomorrow.year, tomorrow.month.value, tomorrow.dayOfMonth)
+    }
+}
+
+operator fun MyDate.rangeTo(other: MyDate): DateRange = DateRange(this, other)
 
 enum class TimeInterval {
     DAY,
@@ -10,4 +34,22 @@ enum class TimeInterval {
     YEAR
 }
 
-class DateRange(val start: MyDate, val endInclusive: MyDate)
+class DateRange(val start: MyDate, val endInclusive: MyDate) : Iterable<MyDate> {
+    operator fun contains(date: MyDate) : Boolean {
+        return start <= date && date <= endInclusive
+    }
+
+    override fun iterator(): Iterator<MyDate> = DateRangeIterator(start, endInclusive)
+}
+
+class DateRangeIterator(val start: MyDate, val endInclusive: MyDate) : Iterator<MyDate> {
+
+    private var current = start;
+
+    override fun hasNext(): Boolean = start != endInclusive
+
+    override fun next(): MyDate {
+        current = current++
+        return current
+    }
+}
